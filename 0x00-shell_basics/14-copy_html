@@ -1,2 +1,2 @@
-ln -s /bin/ls ls
+#!/bin/bash
 cp -u *.htm ..
