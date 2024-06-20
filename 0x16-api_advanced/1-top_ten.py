@@ -6,22 +6,34 @@ of the first 10 hot posts listed for a given subreddit.
 
 import requests
 
-
 def top_ten(subreddit):
     """
-    Function that queries the Reddit API
-    - If not a valid subreddit, print None.
+    Function that queries the Reddit API and prints the titles
+    of the first 10 hot posts listed for a given subreddit.
+    If not a valid subreddit, print None.
     """
-    req = requests.get(
-        "https://www.reddit.com/r/{}/hot.json".format(subreddit),
-        headers={"User-Agent": "Custom"},
-        params={"limit": 10},
-    )
+    url = f"https://www.reddit.com/r/{subreddit}/hot.json"
+    headers = {"User-Agent": "Custom"}
 
-    if req.status_code == 200:
-        for get_data in req.json().get("data").get("children"):
-            dat = get_data.get("data")
-            title = dat.get("title")
+    try:
+        # Send GET request to Reddit API
+        response = requests.get(url, headers=headers, params={"limit": 10})
+        response.raise_for_status()  # Raise exception for bad response status
+
+        # Parse JSON response
+        data = response.json()
+        posts = data["data"]["children"]
+
+        if not posts:
+            print("No posts found.")
+            return
+
+        # Print titles of the first 10 hot posts
+        for post in posts:
+            title = post["data"]["title"]
             print(title)
-    else:
-        print(None)
+
+    except requests.RequestException as e:
+        print(f"Error fetching subreddit: {e}")
+    except KeyError:
+        print(f"Invalid subreddit: {subreddit}")
